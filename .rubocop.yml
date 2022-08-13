@@ -1,0 +1,33 @@
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 2.6.5
+Layout/LineLength:
+  Enabled: false
+Metrics/ModuleLength:
+  Max: 300
+Metrics/AbcSize:
+  Enabled: false
+Metrics/BlockLength:
+  Enabled: false
+Metrics/ClassLength:
+  Enabled: false
+Metrics/CyclomaticComplexity:
+  Enabled: false
+Metrics/MethodLength:
+  Enabled: false
+Metrics/ParameterLists:
+  Enabled: false
+Metrics/PerceivedComplexity:
+  Enabled: false
+Naming/FileName:
+  Enabled: false
+Style/Documentation:
+  Enabled: false
+Style/GlobalVars:
+  Enabled: false
+Style/GuardClause:
+  Enabled: false
+Style/MultilineBlockChain:
+  Enabled: false
+Style/OptionalBooleanParameter:
+  Enabled: false
