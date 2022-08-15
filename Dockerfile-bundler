@@ -1,0 +1,20 @@
+FROM ruby:3.1.2-alpine3.16 as base
+RUN echo "http://mirrors.ustc.edu.cn/alpine/v3.16/main/" > /etc/apk/repositories && \
+    echo "http://mirrors.ustc.edu.cn/alpine/v3.16/community/" >> /etc/apk/repositories
+WORKDIR /usr/src/app
+RUN apk update && \
+    bundle config set without 'development test' && \
+    apk add --no-cache tzdata git
+
+FROM base as bundler
+ARG MODULES
+RUN apk add --no-cache autoconf automake build-base ${MODULES}
+RUN echo 'gem: --no-document' >> ~/.gemrc && \
+    cp ~/.gemrc /etc/gemrc && \
+    chmod +r /etc/gemrc && \
+    bundle config mirror.https://rubygems.org https://gems.ruby-china.com
+
+COPY Gemfile .
+COPY Gemfile.lock .
+RUN bundle config set without '' && bundle install --gemfile Gemfile -j16 --binstubs=$BUNDLE_PATH/bin
+
