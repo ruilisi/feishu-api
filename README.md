@@ -1,6 +1,6 @@
 # FeishuApi
 
-FeishuApi is a integration of commonly used feishu open platform's APIs, easy to call.
+FeishuApi is an integration of commonly used feishu open platform's APIs, easy to call.
 
 ## Installation
 

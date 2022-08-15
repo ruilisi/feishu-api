@@ -16,7 +16,7 @@ Gem::Specification.new do |spec|
 
   # spec.metadata["allowed_push_host"] = "TODO: Set to your gem server 'https://example.com'"
 
-  spec.metadata['rubygems_mfa_required'] = 'false'
+  spec.metadata['rubygems_mfa_required'] = 'true'
   spec.metadata['homepage_uri'] = 'https://github.com/ruilisi/feishu-api'
   spec.metadata['source_code_uri'] = 'https://github.com/ruilisi/feishu-api.git'
   spec.metadata['changelog_uri'] = 'https://github.com/ruilisi/feishu-api/blob/master/CHANGELOG.md'
