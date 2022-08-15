@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.email = ['msk1143667241@outlook.com']
 
   spec.summary = 'feishu open api'
-  spec.description = "Feishu api is a integration of commonly used feishu open platform's APIs, easy to call."
+  spec.description = "FeishuApi is a integration of commonly used feishu open platform's APIs, easy to call."
   spec.homepage = 'https://github.com/ruilisi/feishu-api'
   spec.license = 'MIT'
   spec.required_ruby_version = '>= 2.6.0'
