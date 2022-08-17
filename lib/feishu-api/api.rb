@@ -10,6 +10,7 @@ module FeishuApi
     API_CUSTOM_BOT_SEND = '/bot/v2/hook'
     API_UPLOAD_IMAGE = '/im/v1/images'
     API_UPLOAD_FILES = '/im/v1/files'
+    API_CHATS = '/im/v1/chats'
 
     def api(interface)
       "#{API_HOST}#{interface}"
@@ -23,11 +24,32 @@ module FeishuApi
                     verify: false)
     end
 
-    def post_with_token(url, data, _timeout = 30)
-      headers = { Authorization: "Bearer #{tenant_access_token}" }
-      post(url,
-           data,
-           headers)
+    def post_with_token(url, data, headers = {}, timeout = 30)
+      HTTParty.post(api(url),
+                    body: data,
+                    headers: { Authorization: "Bearer #{tenant_access_token}" }.merge(headers),
+                    timeout: timeout)
+    end
+
+    def get_with_token(url, data = {}, headers = {}, timeout = 30)
+      HTTParty.get(api(url),
+                   body: data,
+                   headers: { Authorization: "Bearer #{tenant_access_token}" }.merge(headers),
+                   timeout: timeout)
+    end
+
+    def delete_with_token(url, data = {}, headers = {}, timeout = 30)
+      HTTParty.delete(api(url),
+                      body: data,
+                      headers: { Authorization: "Bearer #{tenant_access_token}" }.merge(headers),
+                      timeout: timeout)
+    end
+
+    def patch_with_token(url, data = {}, headers = {}, timeout = 30)
+      HTTParty.patch(api(url),
+                     body: data,
+                     headers: { Authorization: "Bearer #{tenant_access_token}" }.merge(headers),
+                     timeout: timeout)
     end
 
     def tenant_access_token
@@ -81,22 +103,20 @@ module FeishuApi
 
     # 上传图片
     def upload_image(path)
-      HTTParty.post("#{API_HOST}#{API_UPLOAD_IMAGE}",
-                    body: { image_type: 'message', image: File.new(path) },
-                    headers: { 'Content-Type' => 'multipart/formdata', Authorization: "Bearer #{tenant_access_token}" })
+      post_with_token(API_UPLOAD_IMAGE.to_s, { image_type: 'message', image: File.new(path) },
+                      { 'Content-Type' => 'multipart/formdata', 'Accept' => 'application/json' })
     end
 
     # 下载图片
     def download_image(image_key)
-      HTTParty.get("#{API_HOST}#{API_UPLOAD_IMAGE}/#{image_key}",
-                   headers: { Authorization: "Bearer #{tenant_access_token}" })
+      get_with_token("#{API_UPLOAD_IMAGE}/#{image_key}")
     end
 
     # 上传文件
     def upload_file(path, file_type)
-      HTTParty.post("#{API_HOST}#{API_UPLOAD_FILES}",
-                    body: { file_type: file_type, file_name: File.basename(path), file: File.new(path) },
-                    headers: { 'Content-Type' => 'multipart/formdata', Authorization: "Bearer #{tenant_access_token}" })
+      post_with_token(API_UPLOAD_FILES.to_s,
+                      { file_type: file_type, file_name: File.basename(path), file: File.new(path) },
+                      { 'Content-Type' => 'multipart/formdata' })
     end
 
     # 下载文件
@@ -112,14 +132,12 @@ module FeishuApi
 
     # 撤回消息
     def withdraw_message(message_id)
-      HTTParty.delete("#{API_HOST}#{API_SEND_MESSAGES}/#{message_id}",
-                      headers: { Authorization: "Bearer #{tenant_access_token}" })
+      delete_with_token("#{API_SEND_MESSAGES}/#{message_id}")
     end
 
     # 查询消息已读信息
     def check_reader(message_id)
-      HTTParty.get("#{API_HOST}#{API_SEND_MESSAGES}/#{message_id}/read_users?user_id_type=open_id",
-                   headers: { Authorization: "Bearer #{tenant_access_token}" })
+      get_with_token("#{API_SEND_MESSAGES}/#{message_id}/read_users?user_id_type=open_id")
     end
 
     # 发图片消息到指定群聊
@@ -129,39 +147,147 @@ module FeishuApi
 
     #  回复消息
     def reply_message(message_id)
-      HTTParty.post("#{API_HOST}#{API_SEND_MESSAGES}/#{message_id}/reply",
-                    body: { content: '{"text":" test content"}', msg_type: 'text' },
-                    headers: { Authorization: "Bearer #{tenant_access_token}" })
+      post_with_token("#{API_SEND_MESSAGES}/#{message_id}/reply",
+                      { content: '{"text":" test content"}', msg_type: 'text' })
     end
 
     # 获取会话（历史）消息
     def get_chat_messages(container_id)
-      HTTParty.get("#{API_HOST}#{API_SEND_MESSAGES}?container_id_type=chat&container_id=#{container_id}", headers: { Authorization: "Bearer #{tenant_access_token}" })
+      get_with_token("#{API_SEND_MESSAGES}?container_id_type=chat&container_id=#{container_id}")
     end
 
     # 获取指定消息的内容
     def get_message_content(message_id)
-      HTTParty.get("#{API_HOST}#{API_SEND_MESSAGES}/#{message_id}", headers: { Authorization: "Bearer #{tenant_access_token}" })
+      get_with_token("#{API_SEND_MESSAGES}/#{message_id}")
     end
 
     # 发送应用内加急消息 （需要相关权限）
     def send_urgent_app_message(message_id, user_id)
-      HTTParty.patch("#{API_HOST}#{API_SEND_MESSAGES}/#{message_id}/urgent_app?user_id_type=user_id",
-                     headers: { Authorization: "Bearer #{tenant_access_token}" },
-                     body: { user_id_list: [user_id] })
+      patch_with_token("#{API_SEND_MESSAGES}/#{message_id}/urgent_app?user_id_type=user_id",
+                       { user_id_list: [user_id] })
     end
 
-    # # 添加消息表情回复
-    # def add_message_reactions(message_id,emoji_type)
-    #   HTTParty.post("#{API_HOST}#{API_SEND_MESSAGES}/#{message_id}/reactions",
-    #     headers:{Authorization: "Bearer #{tenant_access_token}"},
-    #     body: {
-    #       "reaction_type": 'emoji',
-    #       "reaction_type": {
-    #           "emoji_type": emoji_type
-    #       }
-    #   })
-    # end
+    # 添加消息表情回复
+    def add_message_reactions(message_id, emoji_type)
+      post_with_token("#{API_SEND_MESSAGES}/#{message_id}/reactions",
+                      {
+                        reaction_type: {
+                          emoji_type: emoji_type.to_s
+                        }
+                      }.to_json, { 'Content-Type' => 'application/json' })
+    end
+
+    # 获取消息表情回复
+    def get_message_reactions(message_id)
+      get_with_token("#{API_SEND_MESSAGES}/#{message_id}/reactions")
+    end
+
+    # 删除消息表情回复
+    def delete_message_reactions(message_id)
+      delete_with_token("#{API_SEND_MESSAGES}/#{message_id}/reactions")
+    end
+
+    # 获取用户或者机器人所在群列表
+    def bot_chat_list
+      get_with_token(API_CHATS.to_s)
+    end
+
+    # 搜索对用户或机器人可见的群列表
+    def search_chat_list(query)
+      get_with_token("#{API_CHATS}/search?query=#{query}")
+    end
+
+    # 灵缇高级管家 chat_id:oc_31e9100a2673814ecba937f0772b8ebc
+    # 获取群成员发言权限
+    def get_member_permission(chat_id)
+      get_with_token("#{API_HOST}#{API_CHATS}/#{chat_id}/moderation")
+    end
+
+    # 更新群成员发言权限
+    def update_member_permission(chat_id)
+      HTTParty.put("#{API_HOST}#{API_CHATS}/#{chat_id}/moderation", headers: { Authorization: "Bearer #{tenant_access_token}" })
+    end
+
+    # 更新群置顶
+    def update_group_top_notice(chat_id, message_id)
+      post_with_token("#{API_CHATS}/#{chat_id}/top_notice/put_top_notice",
+                      {
+                        chat_top_notice: [
+                          {
+                            action_type: '1',
+                            message_id: message_id.to_s
+                          }
+                        ]
+                      }.to_json, { 'Content-Type' => 'application/json', 'Accept' => 'application/json' })
+    end
+
+    # 撤销群置顶
+    def delete_group_top_notice(chat_id)
+      delete_with_token("#{API_CHATS}/#{chat_id}/top_notice/delete_top_notice")
+    end
+
+    # 创建群
+    def create_group(name)
+      post_with_token(API_CHATS.to_s,
+                      { name: name.to_s })
+    end
+
+    # 获取群信息
+    def get_group_info(chat_id)
+      get_with_token("#{API_CHATS}/#{chat_id}")
+    end
+
+    # 更新群信息
+    def update_group_info(chat_id, description)
+      HTTParty.put("#{API_HOST}#{API_CHATS}/#{chat_id}",
+                   headers: { Authorization: "Bearer #{tenant_access_token}" },
+                   body: { description: description.to_s })
+    end
+
+    # 解散群
+    def dissolve_group(chat_id)
+      delete_with_token("#{API_CHATS}/#{chat_id}")
+    end
+
+    # 将用户或机器人拉入群聊
+    def add_group_member(chat_id, id_list)
+      post_with_token("#{API_CHATS}/#{chat_id}/members",
+                      { id_list: id_list }.to_json, { 'Content-Type' => 'application/json', 'Accept' => 'application/json' })
+    end
+
+    # 将用户或机器人移出群聊
+    def delete_group_member(chat_id, id_list)
+      delete_with_token("#{API_CHATS}/#{chat_id}/members",
+                        { id_list: id_list }.to_json, { 'Content-Type' => 'application/json', 'Accept' => 'application/json' })
+    end
+
+    # 用户或机器人主动加入群聊
+    # 需要打开群设置：公开
+    def join_group(chat_id)
+      patch_with_token("#{API_CHATS}/#{chat_id}/members/me_join")
+    end
+
+    # 判断用户或机器人是否在群里
+    def member_is_in_chat(chat_id)
+      get_with_token("#{API_CHATS}/#{chat_id}/members/is_in_chat")
+    end
+
+    # 指定群管理员
+    def add_group_managers(chat_id, manager_ids)
+      post_with_token("#{API_CHATS}/#{chat_id}/managers/add_managers",
+                      { manager_ids: manager_ids }.to_json,{'Content-Type' => 'application/json'})
+    end
+
+    # 删除群管理员
+    def delete_group_managers(chat_id, manager_ids)
+      post_with_token("#{API_CHATS}/#{chat_id}/managers/delete_managers",
+        { manager_ids: manager_ids }.to_json,{'Content-Type' => 'application/json'}) 
+    end
+
+    # 获取群成员列表
+    def get_group_members(chat_id)
+      get_with_token("#{API_CHATS}/#{chat_id}/members")
+    end
 
     # 通过邮箱识别用户, 发消息到指定用户
     def send_message_by_email(receive_id, msg_type, content)
