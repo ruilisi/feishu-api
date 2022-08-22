@@ -275,19 +275,37 @@ module FeishuApi
     # 指定群管理员
     def add_group_managers(chat_id, manager_ids)
       post_with_token("#{API_CHATS}/#{chat_id}/managers/add_managers",
-                      { manager_ids: manager_ids }.to_json,{'Content-Type' => 'application/json'})
+                      { manager_ids: manager_ids }.to_json, { 'Content-Type' => 'application/json' })
     end
 
     # 删除群管理员
     def delete_group_managers(chat_id, manager_ids)
       post_with_token("#{API_CHATS}/#{chat_id}/managers/delete_managers",
-        { manager_ids: manager_ids }.to_json,{'Content-Type' => 'application/json'}) 
+                      { manager_ids: manager_ids }.to_json, { 'Content-Type' => 'application/json' })
     end
 
     # 获取群成员列表
     def get_group_members(chat_id)
       get_with_token("#{API_CHATS}/#{chat_id}/members")
     end
+
+    # 获取群公告信息
+    def get_group_announcement(chat_id)
+      get_with_token("#{API_CHATS}/#{chat_id}/announcement")
+    end
+
+    # 更新群公告信息
+    # rubocop:disable all
+    def update_group_announcement(chat_id)
+      patch_with_token("#{API_CHATS}/#{chat_id}/announcement",
+        {
+          "revision": "0",
+          "requests": [
+            "{\"requestType\":\"UpdateTitleRequestType\",\"updateTitleRequest\":{\"payload\":\"{\\\"elements\\\":[{\\\"type\\\":\\\"textRun\\\",\\\"textRun\\\":{\\\"text\\\":\\\"Updated Document Title\\\",\\\"style\\\":{}}}],\\\"style\\\":{}}\"}}"
+          ]
+        }.to_json, { 'Content-Type' => 'application/json'})
+    end
+    # rubocop:enable all
 
     # 通过邮箱识别用户, 发消息到指定用户
     def send_message_by_email(receive_id, msg_type, content)

@@ -2,6 +2,9 @@
 
 FeishuApi is an integration of commonly used feishu open platform's APIs, easy to call.
 
+
+English | [简体中文](./README-zh.md)
+
 ## Installation
 
 Install the gem and add to the application's Gemfile by executing:
@@ -12,6 +15,33 @@ If bundler is not being used to manage dependencies, install the gem by executin
 
     $ gem install feishu-api
 
+## Roadmap
+- ✅ Messenger
+- ✅ Group
+- Docs
+- Calendar
+- Video Conferencing
+- Rooms
+- Attendance
+- Approval
+- Account
+- Console
+- Task
+- Email
+- App Information
+- Company Information
+- Search
+- AI
+- Admin
+- HR
+- OKR
+- Real-name authentication
+- Smart access control
+- Enterprise Encyclopedia
+- Contacts
+
+## Documentation
+See detailed documentation at [feishu-api-doc](https://xiemala.com/s/DstEGj/feishu-api)
 ## Usage
 
 Add feishu-api.rb in config/initializers
