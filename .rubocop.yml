@@ -4,7 +4,7 @@ AllCops:
 Layout/LineLength:
   Enabled: false
 Metrics/ModuleLength:
-  Max: 300
+  Max: 1000
 Metrics/AbcSize:
   Enabled: false
 Metrics/BlockLength:
