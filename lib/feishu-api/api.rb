@@ -11,6 +11,8 @@ module FeishuApi
     API_UPLOAD_IMAGE = '/im/v1/images'
     API_UPLOAD_FILES = '/im/v1/files'
     API_CHATS = '/im/v1/chats'
+    API_RESERVES = '/vc/v1/reserves'
+    API_MEETINGS = '/vc/v1/meetings'
 
     def api(interface)
       "#{API_HOST}#{interface}"
@@ -31,10 +33,38 @@ module FeishuApi
                     timeout: timeout)
     end
 
+    def post_with_user_token(url, user_access_token, data, headers = {}, timeout = 30)
+      HTTParty.post(api(url),
+                    body: data,
+                    headers: { Authorization: "Bearer #{user_access_token}" }.merge(headers),
+                    timeout: timeout)
+    end
+
     def get_with_token(url, data = {}, headers = {}, timeout = 30)
       HTTParty.get(api(url),
                    body: data,
                    headers: { Authorization: "Bearer #{tenant_access_token}" }.merge(headers),
+                   timeout: timeout)
+    end
+
+    def get_with_user_token(url, user_access_token, data = {}, headers = {}, timeout = 30)
+      HTTParty.get(api(url),
+                   body: data,
+                   headers: { Authorization: "Bearer #{user_access_token}" }.merge(headers),
+                   timeout: timeout)
+    end
+
+    def put_with_token(url, data = {}, headers = {}, timeout = 30)
+      HTTParty.put(api(url),
+                   body: data,
+                   headers: { Authorization: "Bearer #{tenant_access_token}" }.merge(headers),
+                   timeout: timeout)
+    end
+
+    def put_with_user_token(url, user_access_token, data = {}, headers = {}, timeout = 30)
+      HTTParty.put(api(url),
+                   body: data,
+                   headers: { Authorization: "Bearer #{user_access_token}" }.merge(headers),
                    timeout: timeout)
     end
 
@@ -45,10 +75,24 @@ module FeishuApi
                       timeout: timeout)
     end
 
+    def delete_with_user_token(url, user_access_token, data = {}, headers = {}, timeout = 30)
+      HTTParty.delete(api(url),
+                      body: data,
+                      headers: { Authorization: "Bearer #{user_access_token}" }.merge(headers),
+                      timeout: timeout)
+    end
+
     def patch_with_token(url, data = {}, headers = {}, timeout = 30)
       HTTParty.patch(api(url),
                      body: data,
                      headers: { Authorization: "Bearer #{tenant_access_token}" }.merge(headers),
+                     timeout: timeout)
+    end
+
+    def patch_with_user_token(url, user_access_token, data = {}, headers = {}, timeout = 30)
+      HTTParty.patch(api(url),
+                     body: data,
+                     headers: { Authorization: "Bearer #{user_access_token}" }.merge(headers),
                      timeout: timeout)
     end
 
@@ -200,12 +244,12 @@ module FeishuApi
     # 灵缇高级管家 chat_id:oc_31e9100a2673814ecba937f0772b8ebc
     # 获取群成员发言权限
     def get_member_permission(chat_id)
-      get_with_token("#{API_HOST}#{API_CHATS}/#{chat_id}/moderation")
+      get_with_token("#{API_CHATS}/#{chat_id}/moderation")
     end
 
     # 更新群成员发言权限
     def update_member_permission(chat_id)
-      HTTParty.put("#{API_HOST}#{API_CHATS}/#{chat_id}/moderation", headers: { Authorization: "Bearer #{tenant_access_token}" })
+      put_with_token("#{API_CHATS}/#{chat_id}/moderation")
     end
 
     # 更新群置顶
@@ -239,9 +283,7 @@ module FeishuApi
 
     # 更新群信息
     def update_group_info(chat_id, description)
-      HTTParty.put("#{API_HOST}#{API_CHATS}/#{chat_id}",
-                   headers: { Authorization: "Bearer #{tenant_access_token}" },
-                   body: { description: description.to_s })
+      put_with_token("#{API_CHATS}/#{chat_id}", { description: description.to_s })
     end
 
     # 解散群
@@ -318,6 +360,102 @@ module FeishuApi
       return nil if res.code != 200
 
       JSON.parse(res.body)
+    end
+
+    # 预约会议
+    def reserve_meeting(token, end_time, check_list, topic)
+      post_with_user_token("#{API_RESERVES}/apply", token, {
+        end_time: Time.strptime(end_time, '%Y-%m-%d %H:%M:%S').to_i,
+        meeting_settings: {
+          topic: topic,
+          action_permissions: [
+            {
+              permission: 1,
+              permission_checkers: [
+                {
+                  check_field: 1,
+                  check_mode: 1,
+                  check_list: check_list
+                }
+              ]
+            }
+          ],
+          meeting_initial_type: 1,
+          call_setting: {
+            callee: {
+              id: check_list[0],
+              user_type: 1,
+              pstn_sip_info: {
+                nickname: 'dodo',
+                main_address: '+86-02187654321'
+              }
+            }
+          },
+          auto_record: true
+        }
+      }.to_json, { 'Content-Type' => 'application/json' })
+    end
+
+    # 更新预约
+    def update_reserve(token, reserve_id, topic, check_list, end_time)
+      put_with_user_token("#{API_RESERVES}/#{reserve_id}", token,
+                          {
+                            end_time: Time.strptime(end_time, '%Y-%m-%d %H:%M:%S').to_i,
+                            meeting_settings: {
+                              topic: topic,
+                              action_permissions: [
+                                {
+                                  permission: 1,
+                                  permission_checkers: [
+                                    {
+                                      check_field: 1,
+                                      check_mode: 1,
+                                      check_list: check_list
+                                    }
+                                  ]
+                                }
+                              ],
+                              meeting_initial_type: 1,
+                              call_setting: {
+                                callee: {
+                                  id: check_list[0],
+                                  user_type: 1,
+                                  pstn_sip_info: {
+                                    nickname: 'dodo',
+                                    main_address: '+86-02187654321'
+                                  }
+                                }
+                              },
+                              auto_record: true
+                            }
+                          }.to_json, { 'Content-Type' => 'application/json' })
+    end
+
+    # 删除预约
+    def delete_reserve(token, reserve_id)
+      delete_with_user_token("#{API_RESERVES}/#{reserve_id}", token)
+    end
+
+    # 获取预约
+    def get_reserve_info(token, reserve_id)
+      get_with_user_token("#{API_RESERVES}/#{reserve_id}", token)
+    end
+
+    # 获取活跃会议
+    def get_active_meeting(token, reserve_id)
+      get_with_user_token("#{API_RESERVES}/#{reserve_id}/get_active_meeting", token)
+    end
+
+    # 获取会议详情
+    def get_meeting_info(meeting_id)
+      get_with_token("#{API_MEETINGS}/#{meeting_id}")
+    end
+
+    # 获取与会议号相关联的会议列表
+    def get_list_by_no(meeting_number, start_time, end_time)
+      end_time_unix = Time.strptime(end_time, '%Y-%m-%d %H:%M:%S').to_i
+      start_time_unix = Time.strptime(start_time, '%Y-%m-%d %H:%M:%S').to_i
+      get_with_token("#{API_MEETINGS}/list_by_no?end_time=#{end_time_unix}&start_time=#{start_time_unix}&meeting_no=#{meeting_number}")
     end
 
     # 自定义机器人接口 发送文本消息
