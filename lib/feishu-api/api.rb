@@ -22,7 +22,7 @@ module FeishuApi
       HTTParty.post(api(url),
                     body: data.to_json,
                     headers: { 'Content-Type' => 'application/json', 'Accept' => 'application/json' }.merge(headers),
-                    timeout: timeout,
+                    timeout: ,
                     verify: false)
     end
 
@@ -30,70 +30,70 @@ module FeishuApi
       HTTParty.post(api(url),
                     body: data,
                     headers: { Authorization: "Bearer #{tenant_access_token}" }.merge(headers),
-                    timeout: timeout)
+                    timeout: )
     end
 
     def post_with_user_token(url, user_access_token, data, headers = {}, timeout = 30)
       HTTParty.post(api(url),
                     body: data,
                     headers: { Authorization: "Bearer #{user_access_token}" }.merge(headers),
-                    timeout: timeout)
+                    timeout: )
     end
 
     def get_with_token(url, data = {}, headers = {}, timeout = 30)
       HTTParty.get(api(url),
                    body: data,
                    headers: { Authorization: "Bearer #{tenant_access_token}" }.merge(headers),
-                   timeout: timeout)
+                   timeout: )
     end
 
     def get_with_user_token(url, user_access_token, data = {}, headers = {}, timeout = 30)
       HTTParty.get(api(url),
                    body: data,
                    headers: { Authorization: "Bearer #{user_access_token}" }.merge(headers),
-                   timeout: timeout)
+                   timeout: )
     end
 
     def put_with_token(url, data = {}, headers = {}, timeout = 30)
       HTTParty.put(api(url),
                    body: data,
                    headers: { Authorization: "Bearer #{tenant_access_token}" }.merge(headers),
-                   timeout: timeout)
+                   timeout: )
     end
 
     def put_with_user_token(url, user_access_token, data = {}, headers = {}, timeout = 30)
       HTTParty.put(api(url),
                    body: data,
                    headers: { Authorization: "Bearer #{user_access_token}" }.merge(headers),
-                   timeout: timeout)
+                   timeout: )
     end
 
     def delete_with_token(url, data = {}, headers = {}, timeout = 30)
       HTTParty.delete(api(url),
                       body: data,
                       headers: { Authorization: "Bearer #{tenant_access_token}" }.merge(headers),
-                      timeout: timeout)
+                      timeout: )
     end
 
     def delete_with_user_token(url, user_access_token, data = {}, headers = {}, timeout = 30)
       HTTParty.delete(api(url),
                       body: data,
                       headers: { Authorization: "Bearer #{user_access_token}" }.merge(headers),
-                      timeout: timeout)
+                      timeout: )
     end
 
     def patch_with_token(url, data = {}, headers = {}, timeout = 30)
       HTTParty.patch(api(url),
                      body: data,
                      headers: { Authorization: "Bearer #{tenant_access_token}" }.merge(headers),
-                     timeout: timeout)
+                     timeout: )
     end
 
     def patch_with_user_token(url, user_access_token, data = {}, headers = {}, timeout = 30)
       HTTParty.patch(api(url),
                      body: data,
                      headers: { Authorization: "Bearer #{user_access_token}" }.merge(headers),
-                     timeout: timeout)
+                     timeout: )
     end
 
     def tenant_access_token
@@ -128,7 +128,7 @@ module FeishuApi
     # 发送消息
     def send_message(receive_type, receive_id, msg_type, content)
       res = post_with_token("#{API_SEND_MESSAGES}?receive_id_type=#{receive_type}",
-                            { receive_id: receive_id, msg_type: msg_type, content: content })
+                            { receive_id: , msg_type: , content: })
       # p res
       return nil if res.code != 200
 
@@ -142,7 +142,7 @@ module FeishuApi
 
     # 发文本消息到指定群聊
     def send_text_by_group(receive_id, text)
-      send_message_by_group(receive_id, 'text', JSON.generate({ text: text }))
+      send_message_by_group(receive_id, 'text', JSON.generate({ text: }))
     end
 
     # 上传图片
@@ -171,7 +171,7 @@ module FeishuApi
 
     # 发文件消息到指定群聊
     def send_file_by_group(receive_id, file_key)
-      send_message_by_group(receive_id, 'file', JSON.generate({ file_key: file_key }))
+      send_message_by_group(receive_id, 'file', JSON.generate({ file_key: }))
     end
 
     # 撤回消息
@@ -186,7 +186,7 @@ module FeishuApi
 
     # 发图片消息到指定群聊
     def send_image_by_group(receive_id, image_key)
-      send_message_by_group(receive_id, 'image', JSON.generate({ image_key: image_key }))
+      send_message_by_group(receive_id, 'image', JSON.generate({ image_key: }))
     end
 
     #  回复消息
@@ -294,13 +294,13 @@ module FeishuApi
     # 将用户或机器人拉入群聊
     def add_group_member(chat_id, id_list)
       post_with_token("#{API_CHATS}/#{chat_id}/members",
-                      { id_list: id_list }.to_json, { 'Content-Type' => 'application/json', 'Accept' => 'application/json' })
+                      { id_list: }.to_json, { 'Content-Type' => 'application/json', 'Accept' => 'application/json' })
     end
 
     # 将用户或机器人移出群聊
     def delete_group_member(chat_id, id_list)
       delete_with_token("#{API_CHATS}/#{chat_id}/members",
-                        { id_list: id_list }.to_json, { 'Content-Type' => 'application/json', 'Accept' => 'application/json' })
+                        { id_list: }.to_json, { 'Content-Type' => 'application/json', 'Accept' => 'application/json' })
     end
 
     # 用户或机器人主动加入群聊
@@ -317,13 +317,13 @@ module FeishuApi
     # 指定群管理员
     def add_group_managers(chat_id, manager_ids)
       post_with_token("#{API_CHATS}/#{chat_id}/managers/add_managers",
-                      { manager_ids: manager_ids }.to_json, { 'Content-Type' => 'application/json' })
+                      { manager_ids: }.to_json, { 'Content-Type' => 'application/json' })
     end
 
     # 删除群管理员
     def delete_group_managers(chat_id, manager_ids)
       post_with_token("#{API_CHATS}/#{chat_id}/managers/delete_managers",
-                      { manager_ids: manager_ids }.to_json, { 'Content-Type' => 'application/json' })
+                      { manager_ids: }.to_json, { 'Content-Type' => 'application/json' })
     end
 
     # 获取群成员列表
@@ -355,8 +355,15 @@ module FeishuApi
     end
 
     # 自定义机器人接口 发送消息
-    def custom_robot_send(data, hook_id)
-      post("#{API_CUSTOM_BOT_SEND}/#{hook_id}", data)
+    def custom_robot_send(data, hook_id, secret = '')
+      if secret != ''
+        timestamp = Time.now.to_i.to_s
+        string_to_sign = "#{timestamp}\n#{secret}"
+        hmac_code = OpenSSL::HMAC.digest('sha256', string_to_sign, "")
+        sign = Base64.encode64(hmac_code).strip
+        data = {timestamp: , sign: }.merge(data)
+      end
+      res = post("#{API_CUSTOM_BOT_SEND}/#{hook_id}", data)
       return nil if res.code != 200
 
       JSON.parse(res.body)
@@ -375,7 +382,7 @@ module FeishuApi
                 {
                   check_field: 1,
                   check_mode: 1,
-                  check_list: check_list
+                  check_list: 
                 }
               ]
             }
@@ -410,7 +417,7 @@ module FeishuApi
                                     {
                                       check_field: 1,
                                       check_mode: 1,
-                                      check_list: check_list
+                                      check_list: 
                                     }
                                   ]
                                 }
@@ -470,7 +477,7 @@ module FeishuApi
                                   [
                                     {
                                       tag: 'text',
-                                      text: text
+                                      text: 
                                     }
                                   ]
                                 ]
@@ -481,7 +488,7 @@ module FeishuApi
     end
 
     # 自定义机器人接口 发送卡片消息
-    def custom_robot_send_card(title = '标题', theme = 'blue', elements = [], hook_id = '')
+    def custom_robot_send_card(title = '标题', theme = 'blue', elements = [], hook_id = '', secret = '')
       custom_robot_send({
                           msg_type: 'interactive',
                           card: {
@@ -495,9 +502,9 @@ module FeishuApi
                               },
                               template: theme
                             },
-                            elements: elements
+                            elements: 
                           }
-                        }, hook_id)
+                        }, hook_id, secret)
     end
   end
 end
