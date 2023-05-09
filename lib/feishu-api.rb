@@ -5,6 +5,8 @@ require 'feishu-api/config'
 require 'feishu-api/api'
 
 require 'httparty'
+require 'openssl'
+require 'base64'
 
 module FeishuApi
   # Your code goes here...
