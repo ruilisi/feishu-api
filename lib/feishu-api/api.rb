@@ -40,6 +40,13 @@ module FeishuApi
                     timeout: )
     end
 
+    def post_with_user_token(url, user_access_token, data, headers = {}, timeout = 30)
+      HTTParty.post(api(url),
+                    body: data,
+                    headers: { Authorization: "Bearer #{user_access_token}" }.merge(headers),
+                    timeout: timeout)
+    end
+
     def get_with_token(url, data = {}, headers = {}, timeout = 30)
       HTTParty.get(api(url),
                    body: data,
@@ -68,6 +75,27 @@ module FeishuApi
                    timeout: )
     end
 
+    def get_with_user_token(url, user_access_token, data = {}, headers = {}, timeout = 30)
+      HTTParty.get(api(url),
+                   body: data,
+                   headers: { Authorization: "Bearer #{user_access_token}" }.merge(headers),
+                   timeout: timeout)
+    end
+
+    def put_with_token(url, data = {}, headers = {}, timeout = 30)
+      HTTParty.put(api(url),
+                   body: data,
+                   headers: { Authorization: "Bearer #{tenant_access_token}" }.merge(headers),
+                   timeout: timeout)
+    end
+
+    def put_with_user_token(url, user_access_token, data = {}, headers = {}, timeout = 30)
+      HTTParty.put(api(url),
+                   body: data,
+                   headers: { Authorization: "Bearer #{user_access_token}" }.merge(headers),
+                   timeout: timeout)
+    end
+
     def delete_with_token(url, data = {}, headers = {}, timeout = 30)
       HTTParty.delete(api(url),
                       body: data,
@@ -82,6 +110,13 @@ module FeishuApi
                       timeout: )
     end
 
+    def delete_with_user_token(url, user_access_token, data = {}, headers = {}, timeout = 30)
+      HTTParty.delete(api(url),
+                      body: data,
+                      headers: { Authorization: "Bearer #{user_access_token}" }.merge(headers),
+                      timeout: timeout)
+    end
+
     def patch_with_token(url, data = {}, headers = {}, timeout = 30)
       HTTParty.patch(api(url),
                      body: data,
@@ -94,6 +129,13 @@ module FeishuApi
                      body: data,
                      headers: { Authorization: "Bearer #{user_access_token}" }.merge(headers),
                      timeout: )
+    end
+
+    def patch_with_user_token(url, user_access_token, data = {}, headers = {}, timeout = 30)
+      HTTParty.patch(api(url),
+                     body: data,
+                     headers: { Authorization: "Bearer #{user_access_token}" }.merge(headers),
+                     timeout: timeout)
     end
 
     def tenant_access_token
